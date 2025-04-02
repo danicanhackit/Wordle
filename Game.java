@@ -20,8 +20,10 @@ public class Game  extends JPanel implements Runnable, KeyListener{
     private Tile [][] tiles = new Tile[5][wordLength];
 
     private int currentRowBeingGuessed = 0;
-    private String guess = " ";
-    private boolean currentlyTypingGuess;
+    private int currentColumn = 0;
+
+
+
 
 	public Game() {
 		new Thread(this).start();	
@@ -29,7 +31,7 @@ public class Game  extends JPanel implements Runnable, KeyListener{
 	
         setGrid();
 		System.out.println(selectedWord);
-        currentlyTypingGuess = true;
+      
 		
 	}
 
@@ -68,23 +70,30 @@ public class Game  extends JPanel implements Runnable, KeyListener{
 
         drawGrid(g2d);
 
-        if(currentlyTypingGuess){
-            typeGuess(g2d, currentRowBeingGuessed);
-        }
-
-        //System.out.println("Currently typing guess: "+currentlyTypingGuess);
 		
 		twoDgraph.drawImage(back, null, 0, 0);
 
 	}
 
-    public void typeGuess(Graphics g2d, int row){
-        //int index = 0;
-        for(int c=0; c<tiles[row].length; c++){
-            int index = 0;
-            tiles[row][c].setLetter(guess.substring(index, index+1));
-            index++;
+    public void checkGuess(){
+        String guess = "";
+        for(int col=0; col<tiles[0].length; col++){
+            guess+=tiles[currentRowBeingGuessed-1][col].getLetter();
         }
+
+        for(int i=0; i<guess.length(); i++){
+            String letter = guess.substring(i, i+1);
+            
+
+            if(selectedWord.toLowerCase().contains(letter) && selectedWord.indexOf(letter)==i){
+                tiles[currentRowBeingGuessed-1][i].setColor(Color.GREEN);
+            } else if(selectedWord.toLowerCase().contains(letter)){
+                tiles[currentRowBeingGuessed-1][i].setColor(Color.YELLOW);
+            } else {
+                tiles[currentRowBeingGuessed-1][i].setColor(Color.GRAY);
+            }
+        }
+        System.out.println(guess);
     }
 
     public void drawGrid(Graphics g2d){
@@ -100,7 +109,7 @@ public class Game  extends JPanel implements Runnable, KeyListener{
         int y = 100;
         for(int r=0; r<tiles.length; r++){
             for(int c=0; c<tiles[r].length; c++){
-                tiles[r][c] = new Tile(x, y, "a");
+                tiles[r][c] = new Tile(x, y, ' ');
                 x+=110;
             }
             x=100;
@@ -142,26 +151,28 @@ public class Game  extends JPanel implements Runnable, KeyListener{
 	@Override
 	public void keyPressed(KeyEvent e) {
 		// TODO Auto-generated method stub
-        System.out.println(guess);
+       
 
         if(e.getKeyCode() == 10){
-            //currentlyTypingGuess = false;
-            if(currentRowBeingGuessed<=4){
+            if(currentRowBeingGuessed<=5){
                 currentRowBeingGuessed++;
+                currentColumn = 0;
+                checkGuess();
             }
-            // set back to true in method where guess is checked
+        } else if(e.getKeyCode()==8){
+            tiles[currentRowBeingGuessed][currentColumn].setLetter(' ');
+
+            if(currentColumn!=0){
+                currentColumn--;
+            }
+        }  else {
+            tiles[currentRowBeingGuessed][currentColumn].setLetter(e.getKeyChar());
+            if(currentColumn!=tiles[currentRowBeingGuessed].length-1){
+                currentColumn++;
+            }
         }
 
-        String s = "";
-        if(currentlyTypingGuess){
-            for(int i=0;i<selectedWord.length();i++){
-                s+=e.getKeyChar();    
-                
-            }
-            //while(s.length()<selectedWord.length()){
-              
-            guess = s;
-        }
+        
 		
 	}
 
