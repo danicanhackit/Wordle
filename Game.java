@@ -81,14 +81,20 @@ public class Game  extends JPanel implements Runnable, KeyListener{
             guess+=tiles[currentRowBeingGuessed-1][col].getLetter();
         }
 
+        ArrayList<String> letters = new ArrayList<String>();
+        for(int j=0; j<selectedWord.length(); j++){
+            letters.add(selectedWord.substring(j, j+1));
+        }
+
         for(int i=0; i<guess.length(); i++){
             String letter = guess.substring(i, i+1);
             
-
-            if(selectedWord.toLowerCase().contains(letter) && selectedWord.indexOf(letter)==i){
+            if(selectedWord.toLowerCase().contains(letter) && selectedWord.substring(i,i+1).equals(letter)){
                 tiles[currentRowBeingGuessed-1][i].setColor(Color.GREEN);
-            } else if(selectedWord.toLowerCase().contains(letter)){
+                letters.remove(letter);
+            } else if(selectedWord.toLowerCase().contains(letter) && letters.contains(letter)){
                 tiles[currentRowBeingGuessed-1][i].setColor(Color.YELLOW);
+                letters.remove(letter);
             } else {
                 tiles[currentRowBeingGuessed-1][i].setColor(Color.GRAY);
             }
@@ -133,7 +139,7 @@ public class Game  extends JPanel implements Runnable, KeyListener{
     }
 	
     public int generateRandomNum(int min, int max){
-        return (int)(Math.random()*(max-min)+min)+1;
+        return (int)(Math.random()*(max-min+1))+min;
     }
 
 
